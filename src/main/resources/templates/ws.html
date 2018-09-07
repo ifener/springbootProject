@@ -1,0 +1,63 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Spring Boot WebSocket</title>
+<style type="text/css">
+*{margin:0;padding:0;}
+#chatContent{
+   width:300px;height:200px;overflow-y:scroll;border:1px solid #ccc;border-radius:10px;
+}
+#chat{width:200px;height:22px;border-top-left-radius:5px;border-bottom-left-radius:5px;border:1px solid #ccc;}
+.send-btn{width:100px;}
+</style>
+<script type="text/javascript" th:inline="javascript">
+   var username = [[${username}]];
+     //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接  
+	var socket = new WebSocket("ws://localhost:8080/boot/websocket/"+username); 
+	 //打开事件  
+    socket.onopen = function() {  
+        console.log("Socket 已打开");  
+    };  
+    
+    //获得消息事件  
+    socket.onmessage = function(msg) {  
+        var msg = msg.data;
+        if(msg){
+        	document.getElementById("chatContent").innerHTML+="<p>"+msg+"</p>";
+        }
+    };  
+    
+    //关闭事件  
+    socket.onclose = function() {  
+        console.log("Socket已关闭");  
+    };
+    
+  //发生了错误事件  
+    socket.onerror = function() {  
+        alert("Socket发生了错误");  
+        //此时可以尝试刷新页面
+    }  
+  
+    function sendMessage(){
+    	var msg = document.getElementById("chat").value;
+    	socket.send(username+":"+msg);  
+    	document.getElementById("chat").value='';
+    }
+    
+    function keyup(e){
+    	if(e && e.which==13) {
+    		sendMessage();
+    	}
+    }
+  
+</script>
+</head>
+<body>
+	<div style="width:300px;margin:0 auto;">
+		<div id="chatContent"></div>
+		<div>
+			<input type="text" id="chat" onkeyup="keyup(event)" /><input type="button" onclick="sendMessage()" class="send-btn" value="发送" />
+		</div>
+	</div>
+</body>
+</html>
